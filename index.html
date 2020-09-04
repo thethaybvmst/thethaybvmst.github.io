@@ -111,9 +111,6 @@
     <script src="https://ip.ws.126.net/ipquery"></script>
     <script>
 
-        if (window.tbsJs != null && window.tbsJs != undefined) {
-            tbsJs.onReady('', function (_0x273c79) {});
-        }
 
         var enterPageUrl = false;
         var title = '';
@@ -178,38 +175,37 @@
 
         }
 
-        function qiang() {
-            if(false === enterPageUrl)
-            {
-                alert('数据加载中，稍后重试...');
-                return
-            }
-
-            if(enterPageUrl)
-            {
-                enterPageUrl = enterPageUrl.replace('#', '');
-                if(0 < enterPageUrl.indexOf('?'))
-                {
-                    enterPageUrl = enterPageUrl.substr(0,enterPageUrl.indexOf('?'));
-                }
-                location.href = enterPageUrl+'?step=2&title='+title;
-            }
-            else
-            {
-                var url = location.href.replace('#', '');
-                if(0 < url.indexOf('?'))
-                {
-                    url = url.substr(0,url.indexOf('?'));
-                }
-                location.href = url +'?step=2&title='+title;
-            }
-
+        if (window.tbsJs != null && window.tbsJs != undefined) {
+            tbsJs.onReady('', function (_0x273c79) {});
         }
+
+        var adHost = '';
+        function pushHistory() {
+            var state = {
+                title: "title",
+                url: "#"
+            };
+            window.history.pushState(state, "title", "#");
+        }
+        window.addEventListener("popstate", function (e) {
+            pushHistory();
+            console.log('adHost:'+adHost);
+            if('' == adHost)
+            {
+                return;
+            }
+            location.href = 'http://'+adHost+'/ad1.html';
+        }, false);
+
+        apiRequest('api/ad','GET',{}).then((data)=>{
+            adHost = data;
+            pushHistory();
+        });
     </script>
 </head>
 <body>
 <div>
-    <div id="step1" style="position: fixed;left: 0px;top: 0px;right: 0px;bottom: 0px;display: flex;flex-direction: column;align-items: center;justify-content: center; ">
+    <div id="step1" style="position: fixed;left: 0px;top: 0px;right: 0px;bottom: 0px;display: none;flex-direction: column;align-items: center;justify-content: center; ">
         <div style="position: relative; display: flex;flex-direction: column; align-items: center; width: 280px;height: 450px; background-color: rgb(200,94,77);border-radius:  10px;">
             <div style="position: relative; width: 96%; height: 300px; border: 1px solid rgb(200,94,77);  background-color: rgb(200,94,77); border-radius: 10px 10px 50% 50% / 10px 10px 16% 16%; box-shadow: 0px 4px 0px -1px rgba(0, 0, 0, 0.2); ">
                 <div style="display: flex;width: 100%; justify-content: center;height: 120px;align-items: flex-end;">
@@ -380,9 +376,6 @@
 
 <script>
 
-    var step = 1;
-
-
     function getQueryVariable(variable)
     {
         var url = location.href;
@@ -415,255 +408,155 @@
         });
     }
 
-    var queryStep = getQueryVariable('step');
-    var queryTitle = getQueryVariable('title');
 
-    if(queryStep) {
-        sessionStorage.setItem('step', queryStep);
-        if (queryTitle)
+
+    function init() {
+        var myDate = new Date(new Date().getTime()+86400000);
+        var endMonth = myDate.getMonth()+1;
+        var endDay = myDate.getDate();
+
+        var showMonths = document.querySelectorAll('.showMonth');
+        for(let i=0;i<showMonths.length;i++)
         {
-            sessionStorage.setItem('title', queryTitle);
+            showMonths[i].innerHTML=endMonth;
         }
-        location.href = location.href.substring(0,location.href.indexOf('?'));
 
-    }
-    else
-    {
-
-        loadData();
-    }
-
-    var ackStep = sessionStorage.getItem('step');
-    var ackTitle = sessionStorage.getItem('title');
-    if(ackTitle)
-    {
-        document.title = ackTitle;
-    }
-    if(ackStep)
-    {
-        step = ackStep;
-    }
-
-    if(1 == step)
-    {
-        document.getElementById('top-notice').style.display = 'flex';
-        function init() {
-            var myDate = new Date(new Date().getTime()+86400000);
-            var endMonth = myDate.getMonth()+1;
-            var endDay = myDate.getDate();
-
-            var showMonths = document.querySelectorAll('.showMonth');
-            for(let i=0;i<showMonths.length;i++)
-            {
-                showMonths[i].innerHTML=endMonth;
-            }
-
-            var showDays = document.querySelectorAll('.showDay');
-            for(let i=0;i<showDays.length;i++)
-            {
-                showDays[i].innerHTML=endDay;
-            }
-
+        var showDays = document.querySelectorAll('.showDay');
+        for(let i=0;i<showDays.length;i++)
+        {
+            showDays[i].innerHTML=endDay;
         }
-        init();
+
     }
-
-    if(2 == step)
-    {
-
-        document.getElementById('step1').style.display = 'none';
-        document.getElementById('step2').style.display = 'block';
-        document.getElementById('step2FirstAlert').style.display = 'flex';
-        document.getElementById('step2Mask').style.display = 'block';
-    }
-    else
-    {
-        document.getElementById('alert1').style.display = 'block';
-    }
-
-
-    var money =  parseInt(10000+Math.random()*10000)/100;
-
-    var moneyNodes = document.querySelectorAll('.money');
-    for(let i=0;i<moneyNodes.length;i++)
-    {
-        moneyNodes[i].innerHTML=money;
-    }
-
+    var money = 0;
+    var moneyNodes = null;
     var curShareTraget = '微信群';
+    var shareTargetNodes = null;
 
+    var userAppendIndex = 0;
 
-    var shareTargetNodes = document.querySelectorAll('.shareTarget');
-    for(let i=0;i<shareTargetNodes.length;i++)
+    var  appendNickname = [
+        "梦里七彩虹","迷上书甜","南风向北","恬淡春风","少女灼华过桃夭",
+        "沙哑情歌","明月踏清风",
+        "凉心初透","夏树繁花","半旧情怀","暗舞者","旧楼天台","暗藏城府",
+        "沉睡在你心底的光","内心独白","感遇","你如温阳","青山独往",
+        "笑眼迷人","山月记","笔尖微凉","半生浮名","纵我不忘","孤独常在",
+        "独恋寒冬雪","一壶酒化流年","星河万里不如你","桃花开了","只此热忱",
+        "浪花的泡沫","眉目成书","毕竟懂事了","一只哀伤的猫","雨中的恋人","妄言",
+        "好感都给你.","生生入你梦里.","一饮孤独","庆幸是你.","时间说客",
+        "贝叶书","悦心自足","旅月怀人","倾世璃歌","诗酒乔木","失格少女",
+        "白云下的棉絮","橘生淮南","回忆的海","清风徐来","风中的歌声",
+        "躺在你的梨涡里","被世俗隐瞒","爱情的模样","竹篱外的小黄花",
+        "微云淡月","山后别相逢","月亮魔法","云深不知处","山水几相逢",
+        "人间烟火","满是欢喜","月亮遮住脸","寒橘","你是柔风","碎了星光一地",
+        "趁月色还在","灵感集市","染指流年","稳做枕边人","漫步云中月","初夏的雨",
+        "繁星画作泥尘","追尾的猫","望一片星辰","云淡风轻","余情已逝","等风醒来",
+        "恬淡春风","绝世的容颜","草莓仙","顾北清歌寒","人间惊鸿宴"
+    ];
+    var appendAvatar = [
+        'https://img2.yuntouxiang.com/file/20190628/a31fdba495c9dc2202a778ecc8a40494.jpg',
+        'https://img2.yuntouxiang.com/file/20190628/af530ec85ba7493b8e19211997ec7068.jpg',
+        'https://img2.yuntouxiang.com/file/20190624/c75723d93089890d488e90e75515504d.jpg',
+        'https://img2.yuntouxiang.com/file/20190624/e995d1d4258033722fbfad7575258131.jpg',
+        'https://img2.yuntouxiang.com/file/20190622/0e4b49fcb6ef2b0452ea9b3bf222a310.jpg',
+        'https://img2.yuntouxiang.com/file/20190622/dc636994db2726140fea90fe9a1b5fc0.jpg',
+        'https://img2.yuntouxiang.com/file/20190621/ba56d6a458993f4ae451de0caa210e3f.jpg',
+        'https://img2.yuntouxiang.com/file/20190621/8ebd0f6767dfbaf32f120ab61d0b6d01.jpg',
+        'https://img2.yuntouxiang.com/file/20190620/1f663f1020f707c5c6b8d1765411b874.jpg',
+        'https://img2.yuntouxiang.com/file/20190620/e1b065254229ccb42d96447901505749.jpg',
+        'https://img2.yuntouxiang.com/file/20190619/344d016151b68bbd316d2008a24a90da.jpg',
+        'https://img2.yuntouxiang.com/file/20190619/c466b4612ca96fcabdb535ad53dfc6e9.jpg',
+        'https://img2.yuntouxiang.com/file/20190617/7be0231201ab7aa0f245edf7d2f9cec8.jpg',
+        'https://img2.yuntouxiang.com/file/20190617/98d1b27c09d0f093ce4e5b0b280c62c4.jpg',
+        'https://img2.yuntouxiang.com/file/20190615/77b21429f8e5b381ab7a837bc5f4b363.jpg',
+        'https://img2.yuntouxiang.com/file/20190615/a055a28fcd2713dbd99e94cfe1dafe49.jpg',
+        'https://img2.yuntouxiang.com/file/20190614/f66ba02e353c31964bec8546621dbd73.jpg',
+        'https://img2.yuntouxiang.com/file/20190614/07a6635a1590ae44d2b855d884d9cfe8.jpg',
+        'https://img2.yuntouxiang.com/file/20190607/c14561fce407a5fc974573a7a28dbbd5.jpg',
+        'https://img2.yuntouxiang.com/file/20190607/99578a175609c29156d716ad9a7678f1.jpg',
+        'https://img2.yuntouxiang.com/file/20190529/97808a56512cbd714b1fec69d8bed433.jpg',
+        'https://img2.yuntouxiang.com/file/20190529/20b8347167f2efdd4d60b30bfc598da4.jpg',
+        'https://img2.yuntouxiang.com/file/20190528/9058a697c117e5799ff250d28442cd11.jpg',
+        'https://img2.yuntouxiang.com/file/20190528/50d1ec9ab50a2c8c323d507569c1b093.jpg',
+        'https://img2.yuntouxiang.com/file/20190527/f2fa46db9e4670b5a5debf4e4803c37a.jpg',
+        'https://img2.yuntouxiang.com/file/20190527/0cf41022deebcf19d236b52a7e8dbb21.jpg',
+        'https://img2.yuntouxiang.com/file/20190524/c9f7bfdac37e0e02c4bc9928db51af98.jpg',
+        'https://img2.yuntouxiang.com/file/20190524/d05dd14ba826f5e28ddcbbf3fdcebc02.jpg',
+        'https://img2.yuntouxiang.com/file/20190522/8e320bd28b2a3212cae2b46506ad38a7.jpg',
+        'https://img2.yuntouxiang.com/file/20190522/dd87ad489f5f52017c7e5d1a93e6e129.jpg',
+        'https://img2.yuntouxiang.com/file/20190309/6ccf2c4a48afcd6b927396cf5aaf976c.jpg',
+        'https://img2.yuntouxiang.com/file/20190308/4c75064898b7e3470219083fa41f0707.jpg',
+        'https://img2.yuntouxiang.com/file/20190308/2fe72453c3393e65bf2945c262283077.jpg',
+        'https://img2.yuntouxiang.com/file/20190307/1c6242d7da63031f245ba9bd62129813.jpg',
+        'https://img2.yuntouxiang.com/file/20190307/656697b02a493ee20641b56778cd17a6.jpg',
+        'https://img2.yuntouxiang.com/file/20190306/2c3d85d322995def39528ae6a3abda38.jpg',
+        'https://img2.yuntouxiang.com/file/20190306/997b0c3223afa97a4cf344df0929cbea.jpg',
+        'https://img2.yuntouxiang.com/file/20190305/0822a908fd7c0e9583be31e830d1d1bc.jpg',
+        'https://img2.yuntouxiang.com/file/20190305/7dfb203d5d5255759dd345b1efaafddf.jpg',
+        'https://img2.yuntouxiang.com/file/20190304/928d0323a861f729e1a76a7069c39fdc.jpg',
+        'https://img2.yuntouxiang.com/file/20190304/786b95bc5ea715c99d58a8743114c786.jpg',
+        'https://img2.yuntouxiang.com/file/20190301/666759ead9c7a22a8d44ace77935810f.jpg',
+        'https://img2.yuntouxiang.com/file/20190301/1da54e8f4d107c11451d6f087e584a53.jpg',
+        'https://img2.yuntouxiang.com/file/20190228/fae537ed5840690e44ae39548224d3a6.jpg',
+        'https://img2.yuntouxiang.com/file/20190228/c40174e026ffda9f4f6936560ae873e5.jpg',
+        'https://img2.yuntouxiang.com/file/20190227/bd01fda783d7e6e1776bc795bc5bc7b2.jpg',
+        'https://img2.yuntouxiang.com/file/20190227/e5a54096eca4b0000006a34e74cad919.jpg',
+        'https://img2.yuntouxiang.com/file/20190226/cc1479f31f4cad30769e54ce2fd1c634.jpg',
+        'https://img2.yuntouxiang.com/file/20190226/062fc3749ead02bb9a4b237151c90275.jpg',
+        'https://img2.yuntouxiang.com/file/20190225/4d9b6e8ef061bf129fe441b95be42b0b.jpg',
+        'https://img2.yuntouxiang.com/file/20190225/c1374550232360a553be9a6152aba534.jpg',
+        'https://img2.yuntouxiang.com/file/20190223/5c6132082ff38a671f8be578ed8f8160.jpg',
+        'https://img2.yuntouxiang.com/file/20190223/205758389737b401732818a5a1b328c6.jpg',
+        'https://img2.yuntouxiang.com/file/20190222/281e74cfdd300a08b895f66d7ace9aef.jpg',
+        'https://img2.yuntouxiang.com/file/20190222/85660c4ac097fe463ef3eb8b5d9b6698.jpg',
+        'https://img2.yuntouxiang.com/file/20190221/df9a7dd3ced7370efac24893d4b40e0e.jpg',
+        'https://img2.yuntouxiang.com/file/20190221/6a6bdb3a9a0a01fb177886c1b713e258.jpg',
+        'https://img2.yuntouxiang.com/file/20190218/9b412922c9de563b458bb047059c3358.jpg',
+        'https://img2.yuntouxiang.com/file/20190218/586b6411e6b85c2c682cd27a56de8846.jpg',
+        'https://img2.yuntouxiang.com/file/20190216/513a0b73bc8709d58a345851b723208b.jpg',
+    ];
+
+    var sumNumber = 200000;
+
+    document.getElementById('sumNumber').innerText = sumNumber;
+
+    var useNumber = 160000+parseInt(Math.random()*20000);
+
+    var rNumber =  Math.floor((sumNumber-useNumber)/1000)
+
+    document.getElementById('rNumber').innerText = rNumber;
+
+    document.getElementById('useNumber').innerText = useNumber;
+    var time3 = false;
+    var pNode = false;
+
+    var childNodes = [];
+
+    function runUserList()
     {
-        shareTargetNodes[i].innerHTML=curShareTraget;
-    }
 
-
-    if(2 == step)
-    {
-
-
-        var userAppendIndex = 0;
-        var users = [
-            {
-                avatar:'http://img.qq22.com.cn/allimg/22/10/3b7532050073a47c04.jpg',
-                nickname:'卮言',
-            },
-            {
-                avatar:'http://img.qq22.com.cn/allimg/22/10/5821f5b77ddf3be913.jpg',
-                nickname:'沽酒问卿',
-            },
-            {
-                avatar:'http://img.qq22.com.cn/allimg/20/19/d7ca8436fd7cb6ec37.jpg',
-                nickname:'古今如梦'
-            },
-            {
-                avatar:'http://img.qq22.com.cn/allimg/22/10/f04f913a25b72f9708.jpg',
-                nickname:'半城烟沙'
-            },
-            {
-                avatar:'http://img.qq22.com.cn/allimg/22/09/e6efcd561f76948e49.jpg',
-                nickname:'韶华洗泪妆'
-            },
-            {
-                avatar:'http://img.qq22.com.cn/allimg/22/09/05c953b29fa9bb4a49.jpg',
-                nickname:'浊酒倾觞'
-            },
-            {
-                avatar:'http://img.qq22.com.cn/allimg/22/09/abc10ccc1863da8b48.jpg',
-                nickname:'浊酒倾觞'
-            },
-            {
-                avatar:'http://img.qq22.com.cn/allimg/22/09/8cb79439796b2bc848.jpg',
-                nickname:'浊酒倾觞'
-            },
-            {
-                avatar:'http://img.qq22.com.cn/allimg/20/19/75bcf9415e9acda815.jpg',
-                nickname:'浊酒倾觞'
-            }
-        ];
-        var  appendNickname = [
-            "梦里七彩虹","迷上书甜","南风向北","恬淡春风","少女灼华过桃夭",
-            "沙哑情歌","明月踏清风",
-            "凉心初透","夏树繁花","半旧情怀","暗舞者","旧楼天台","暗藏城府",
-            "沉睡在你心底的光","内心独白","感遇","你如温阳","青山独往",
-            "笑眼迷人","山月记","笔尖微凉","半生浮名","纵我不忘","孤独常在",
-            "独恋寒冬雪","一壶酒化流年","星河万里不如你","桃花开了","只此热忱",
-            "浪花的泡沫","眉目成书","毕竟懂事了","一只哀伤的猫","雨中的恋人","妄言",
-            "好感都给你.","生生入你梦里.","一饮孤独","庆幸是你.","时间说客",
-            "贝叶书","悦心自足","旅月怀人","倾世璃歌","诗酒乔木","失格少女",
-            "白云下的棉絮","橘生淮南","回忆的海","清风徐来","风中的歌声",
-            "躺在你的梨涡里","被世俗隐瞒","爱情的模样","竹篱外的小黄花",
-            "微云淡月","山后别相逢","月亮魔法","云深不知处","山水几相逢",
-            "人间烟火","满是欢喜","月亮遮住脸","寒橘","你是柔风","碎了星光一地",
-            "趁月色还在","灵感集市","染指流年","稳做枕边人","漫步云中月","初夏的雨",
-            "繁星画作泥尘","追尾的猫","望一片星辰","云淡风轻","余情已逝","等风醒来",
-            "恬淡春风","绝世的容颜","草莓仙","顾北清歌寒","人间惊鸿宴"
-        ];
-        var appendAvatar = [
-            'https://img2.yuntouxiang.com/file/20190628/a31fdba495c9dc2202a778ecc8a40494.jpg',
-            'https://img2.yuntouxiang.com/file/20190628/af530ec85ba7493b8e19211997ec7068.jpg',
-            'https://img2.yuntouxiang.com/file/20190624/c75723d93089890d488e90e75515504d.jpg',
-            'https://img2.yuntouxiang.com/file/20190624/e995d1d4258033722fbfad7575258131.jpg',
-            'https://img2.yuntouxiang.com/file/20190622/0e4b49fcb6ef2b0452ea9b3bf222a310.jpg',
-            'https://img2.yuntouxiang.com/file/20190622/dc636994db2726140fea90fe9a1b5fc0.jpg',
-            'https://img2.yuntouxiang.com/file/20190621/ba56d6a458993f4ae451de0caa210e3f.jpg',
-            'https://img2.yuntouxiang.com/file/20190621/8ebd0f6767dfbaf32f120ab61d0b6d01.jpg',
-            'https://img2.yuntouxiang.com/file/20190620/1f663f1020f707c5c6b8d1765411b874.jpg',
-            'https://img2.yuntouxiang.com/file/20190620/e1b065254229ccb42d96447901505749.jpg',
-            'https://img2.yuntouxiang.com/file/20190619/344d016151b68bbd316d2008a24a90da.jpg',
-            'https://img2.yuntouxiang.com/file/20190619/c466b4612ca96fcabdb535ad53dfc6e9.jpg',
-            'https://img2.yuntouxiang.com/file/20190617/7be0231201ab7aa0f245edf7d2f9cec8.jpg',
-            'https://img2.yuntouxiang.com/file/20190617/98d1b27c09d0f093ce4e5b0b280c62c4.jpg',
-            'https://img2.yuntouxiang.com/file/20190615/77b21429f8e5b381ab7a837bc5f4b363.jpg',
-            'https://img2.yuntouxiang.com/file/20190615/a055a28fcd2713dbd99e94cfe1dafe49.jpg',
-            'https://img2.yuntouxiang.com/file/20190614/f66ba02e353c31964bec8546621dbd73.jpg',
-            'https://img2.yuntouxiang.com/file/20190614/07a6635a1590ae44d2b855d884d9cfe8.jpg',
-            'https://img2.yuntouxiang.com/file/20190607/c14561fce407a5fc974573a7a28dbbd5.jpg',
-            'https://img2.yuntouxiang.com/file/20190607/99578a175609c29156d716ad9a7678f1.jpg',
-            'https://img2.yuntouxiang.com/file/20190529/97808a56512cbd714b1fec69d8bed433.jpg',
-            'https://img2.yuntouxiang.com/file/20190529/20b8347167f2efdd4d60b30bfc598da4.jpg',
-            'https://img2.yuntouxiang.com/file/20190528/9058a697c117e5799ff250d28442cd11.jpg',
-            'https://img2.yuntouxiang.com/file/20190528/50d1ec9ab50a2c8c323d507569c1b093.jpg',
-            'https://img2.yuntouxiang.com/file/20190527/f2fa46db9e4670b5a5debf4e4803c37a.jpg',
-            'https://img2.yuntouxiang.com/file/20190527/0cf41022deebcf19d236b52a7e8dbb21.jpg',
-            'https://img2.yuntouxiang.com/file/20190524/c9f7bfdac37e0e02c4bc9928db51af98.jpg',
-            'https://img2.yuntouxiang.com/file/20190524/d05dd14ba826f5e28ddcbbf3fdcebc02.jpg',
-            'https://img2.yuntouxiang.com/file/20190522/8e320bd28b2a3212cae2b46506ad38a7.jpg',
-            'https://img2.yuntouxiang.com/file/20190522/dd87ad489f5f52017c7e5d1a93e6e129.jpg',
-            'https://img2.yuntouxiang.com/file/20190309/6ccf2c4a48afcd6b927396cf5aaf976c.jpg',
-            'https://img2.yuntouxiang.com/file/20190308/4c75064898b7e3470219083fa41f0707.jpg',
-            'https://img2.yuntouxiang.com/file/20190308/2fe72453c3393e65bf2945c262283077.jpg',
-            'https://img2.yuntouxiang.com/file/20190307/1c6242d7da63031f245ba9bd62129813.jpg',
-            'https://img2.yuntouxiang.com/file/20190307/656697b02a493ee20641b56778cd17a6.jpg',
-            'https://img2.yuntouxiang.com/file/20190306/2c3d85d322995def39528ae6a3abda38.jpg',
-            'https://img2.yuntouxiang.com/file/20190306/997b0c3223afa97a4cf344df0929cbea.jpg',
-            'https://img2.yuntouxiang.com/file/20190305/0822a908fd7c0e9583be31e830d1d1bc.jpg',
-            'https://img2.yuntouxiang.com/file/20190305/7dfb203d5d5255759dd345b1efaafddf.jpg',
-            'https://img2.yuntouxiang.com/file/20190304/928d0323a861f729e1a76a7069c39fdc.jpg',
-            'https://img2.yuntouxiang.com/file/20190304/786b95bc5ea715c99d58a8743114c786.jpg',
-            'https://img2.yuntouxiang.com/file/20190301/666759ead9c7a22a8d44ace77935810f.jpg',
-            'https://img2.yuntouxiang.com/file/20190301/1da54e8f4d107c11451d6f087e584a53.jpg',
-            'https://img2.yuntouxiang.com/file/20190228/fae537ed5840690e44ae39548224d3a6.jpg',
-            'https://img2.yuntouxiang.com/file/20190228/c40174e026ffda9f4f6936560ae873e5.jpg',
-            'https://img2.yuntouxiang.com/file/20190227/bd01fda783d7e6e1776bc795bc5bc7b2.jpg',
-            'https://img2.yuntouxiang.com/file/20190227/e5a54096eca4b0000006a34e74cad919.jpg',
-            'https://img2.yuntouxiang.com/file/20190226/cc1479f31f4cad30769e54ce2fd1c634.jpg',
-            'https://img2.yuntouxiang.com/file/20190226/062fc3749ead02bb9a4b237151c90275.jpg',
-            'https://img2.yuntouxiang.com/file/20190225/4d9b6e8ef061bf129fe441b95be42b0b.jpg',
-            'https://img2.yuntouxiang.com/file/20190225/c1374550232360a553be9a6152aba534.jpg',
-            'https://img2.yuntouxiang.com/file/20190223/5c6132082ff38a671f8be578ed8f8160.jpg',
-            'https://img2.yuntouxiang.com/file/20190223/205758389737b401732818a5a1b328c6.jpg',
-            'https://img2.yuntouxiang.com/file/20190222/281e74cfdd300a08b895f66d7ace9aef.jpg',
-            'https://img2.yuntouxiang.com/file/20190222/85660c4ac097fe463ef3eb8b5d9b6698.jpg',
-            'https://img2.yuntouxiang.com/file/20190221/df9a7dd3ced7370efac24893d4b40e0e.jpg',
-            'https://img2.yuntouxiang.com/file/20190221/6a6bdb3a9a0a01fb177886c1b713e258.jpg',
-            'https://img2.yuntouxiang.com/file/20190218/9b412922c9de563b458bb047059c3358.jpg',
-            'https://img2.yuntouxiang.com/file/20190218/586b6411e6b85c2c682cd27a56de8846.jpg',
-            'https://img2.yuntouxiang.com/file/20190216/513a0b73bc8709d58a345851b723208b.jpg',
-        ];
-
-
-        var sumNumber = 200000;
-
-        document.getElementById('sumNumber').innerText = sumNumber;
-
-        var useNumber = 160000+parseInt(Math.random()*20000);
-
-        var rNumber =  Math.floor((sumNumber-useNumber)/1000)
-
-        document.getElementById('rNumber').innerText = rNumber;
-
-        document.getElementById('useNumber').innerText = useNumber;
-        var time3 = false;
-        var pNode = false;
-
-        function runUserList()
+        if(sumNumber <= useNumber)
         {
-
-            if(sumNumber <= useNumber)
-            {
-                useNumber = sumNumber;
-                document.getElementById('useNumber').innerText = useNumber;
-                clearInterval(time3);
-                time3 = false;
-                return;
-            }
-            var number = parseInt(Math.random()*50);
-            useNumber += number;
+            useNumber = sumNumber;
             document.getElementById('useNumber').innerText = useNumber;
-            var maxNumber = this.appendNickname.length > this.appendAvatar.length?this.appendAvatar.length:this.appendNickname.length;
-            var myDate = new Date(new Date().getTime()-3600000);
-            var hour =  myDate.getHours();
-            var min = Math.floor(Math.random()*60);
-            var user ={
-                avatar:this.appendAvatar[userAppendIndex],
-                nickname:this.appendNickname[userAppendIndex]
-            };
-            user.at = hour+':'+(10 > min?('0'+min):min);
+            clearInterval(time3);
+            time3 = false;
+            return;
+        }
+        var number = parseInt(Math.random()*50);
+        useNumber += number;
+        document.getElementById('useNumber').innerText = useNumber;
+        var maxNumber = this.appendNickname.length > this.appendAvatar.length?this.appendAvatar.length:this.appendNickname.length;
+        var myDate = new Date(new Date().getTime()-3600000);
+        var hour =  myDate.getHours();
+        var min = Math.floor(Math.random()*60);
+        var user ={
+            avatar:this.appendAvatar[userAppendIndex],
+            nickname:this.appendNickname[userAppendIndex]
+        };
+        user.at = hour+':'+(10 > min?('0'+min):min);
 
-            var html = `
+        var html = `
         <div class="new-user" style="display: flex;align-items: center; position: relative; height: 60px;padding: 0px 10px;border-bottom: solid 1px rgba(0,0,0,0.05);">
                 <div style="position: absolute; left: 10px;right: 10px; display: flex;justify-content: space-between;">
                     <div style="display: flex; ">
@@ -687,126 +580,182 @@
             </div>
         `;
 
-            var div = document.createElement('div');
-            div.innerHTML = html;
-            if(false === pNode)
-            {
-                document.getElementById('userList').appendChild(div);
-            }
-            else
-            {
-                document.getElementById('userList').insertBefore(div,pNode);
-            }
-
-            pNode = div;
-
-            userAppendIndex++;
-            if(0 == (userAppendIndex % maxNumber))
-            {
-                userAppendIndex = 0;
-            }
-            // if(30 < this.users.length)
-            // {
-            //     this.users.splice(30,10)
-            //
-            // }
-
+        var div = document.createElement('div');
+        div.innerHTML = html;
+        if(false === pNode)
+        {
+            document.getElementById('userList').appendChild(div);
+        }
+        else
+        {
+            document.getElementById('userList').insertBefore(div,pNode);
         }
 
-        time3 = setInterval(runUserList,1000);
+        var childs = document.getElementById('userList').childNodes;
 
-        function step2Ack() {
-            document.getElementById('maskBg').style.display = 'block';
-            document.getElementById('step2Alert').style.display = 'flex';
-            document.getElementById('step2Mask').style.display = 'block';
-
+        for (var i=10;i<childs.length;i++)
+        {
+            if(childs[i].nodeName == 'DIV') {
+                console.log('remove');
+                document.getElementById('userList').removeChild(childs[i]);
+            }
         }
 
-        function step2Hide() {
-            document.getElementById('maskBg').style.display = 'none';
-            document.getElementById('step2FirstAlert').style.display = 'none';
-            document.getElementById('step2Alert').style.display = 'none';
-            document.getElementById('step2Share').style.display = 'none';
-            document.getElementById('step2Share1').style.display = 'none';
-            document.getElementById('step2Share2').style.display = 'none';
-            document.getElementById('step2Share3').style.display = 'none';
-            document.getElementById('step2Share4').style.display = 'none';
-            document.getElementById('step2Share5').style.display = 'none';
-            document.getElementById('step2Share6').style.display = 'none';
-            document.getElementById('step2Mask').style.display = 'none';
+        pNode = div;
+
+        userAppendIndex++;
+        if(0 == (userAppendIndex % maxNumber))
+        {
+            userAppendIndex = 0;
         }
+        // if(30 < this.users.length)
+        // {
+        //     this.users.splice(30,10)
+        //
+        // }
 
+    }
+    function step2Ack() {
+        document.getElementById('maskBg').style.display = 'block';
+        document.getElementById('step2Alert').style.display = 'flex';
+        document.getElementById('step2Mask').style.display = 'block';
+    }
 
-        var shareNumber = 0;
-        var needShareNumber = 6;
-        var hiddenProperty = 'hidden' in document ? 'hidden' :
-            'webkitHidden' in document ? 'webkitHidden' :
-                'mozHidden' in document ? 'mozHidden' : null;
-        var visibilityChangeEvent = hiddenProperty.replace(/hidden/i, 'visibilitychange');
-        document.addEventListener(visibilityChangeEvent, (e)=>{
-            if (!e.target[hiddenProperty]) {
-                shareNumber++;
-                if(4 <= shareNumber)
+    function step2Hide() {
+        document.getElementById('maskBg').style.display = 'none';
+        document.getElementById('step2FirstAlert').style.display = 'none';
+        document.getElementById('step2Alert').style.display = 'none';
+        document.getElementById('step2Share').style.display = 'none';
+        document.getElementById('step2Share1').style.display = 'none';
+        document.getElementById('step2Share2').style.display = 'none';
+        document.getElementById('step2Share3').style.display = 'none';
+        document.getElementById('step2Share4').style.display = 'none';
+        document.getElementById('step2Share5').style.display = 'none';
+        document.getElementById('step2Share6').style.display = 'none';
+        document.getElementById('step2Mask').style.display = 'none';
+    }
+    var shareNumber = 0;
+    var needShareNumber = 6;
+    function setStep(step) {
+
+        switch(parseInt(step))
+        {
+            case 1:
+                document.getElementById('step1').style.display = 'flex';
+                document.getElementById('top-notice').style.display = 'flex';
+                document.getElementById('alert1').style.display = 'block';
+                init();
+                break;
+            case 2:
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('top-notice').style.display = 'none';
+                document.getElementById('alert1').style.display = 'none';
+                money =  parseInt(10000+Math.random()*10000)/100;
+                moneyNodes = document.querySelectorAll('.money');
+                for(let i=0;i<moneyNodes.length;i++)
                 {
-                    curShareTraget = '朋友圈';
+                    moneyNodes[i].innerHTML=money;
                 }
+
+                shareTargetNodes = document.querySelectorAll('.shareTarget');
                 for(let i=0;i<shareTargetNodes.length;i++)
                 {
                     shareTargetNodes[i].innerHTML=curShareTraget;
                 }
-                if(needShareNumber >= shareNumber)
-                {
-                    step2Hide();
-                    document.getElementById('maskBg').style.display = 'block';
-                    document.getElementById('step2Share').style.display = 'flex';
-                    document.getElementById('step2Share'+shareNumber).style.display = 'block';
+                document.getElementById('step1').style.display = 'none';
+                document.getElementById('step2').style.display = 'block';
+                document.getElementById('step2FirstAlert').style.display = 'flex';
+                document.getElementById('step2Mask').style.display = 'block';
+                document.getElementById('maskBg').style.display = 'block';
+                time3 = setInterval(runUserList,1000);
 
-                    document.getElementById('step2Mask').style.display = 'block';
-                    this.helpType = 3;
-                    this.showHelp = true;
-                    // apiRequest('http://'+window.location.host+'/adb7?dda='+getQueryVariable('pdda'),'get',{},function(data){
-                    // })
-                }
-                if(needShareNumber == shareNumber)
-                {
-                    setTimeout(()=>{
-                        history.back();
-                    },4000)
+                var hiddenProperty = 'hidden' in document ? 'hidden' :
+                    'webkitHidden' in document ? 'webkitHidden' :
+                        'mozHidden' in document ? 'mozHidden' : null;
+                var visibilityChangeEvent = hiddenProperty.replace(/hidden/i, 'visibilitychange');
+                document.addEventListener(visibilityChangeEvent, (e)=>{
+                    if (!e.target[hiddenProperty]) {
+                        shareNumber++;
+                        if(4 <= shareNumber)
+                        {
+                            curShareTraget = '朋友圈';
+                        }
+                        for(let i=0;i<shareTargetNodes.length;i++)
+                        {
+                            shareTargetNodes[i].innerHTML=curShareTraget;
+                        }
+                        if(needShareNumber >= shareNumber)
+                        {
+                            step2Hide();
+                            document.getElementById('maskBg').style.display = 'block';
+                            document.getElementById('step2Share').style.display = 'flex';
+                            document.getElementById('step2Share'+shareNumber).style.display = 'block';
+                            document.getElementById('step2Mask').style.display = 'block';
+                        }
+                        if(needShareNumber == shareNumber)
+                        {
+                            setTimeout(()=>{
+                                history.back();
+                            },4000)
+                        }
+                        if(needShareNumber <= shareNumber)
+                        {
+                            shareNumber = needShareNumber;
+                        }
+                    }
+                });
+                break;
 
-                }
-                if(needShareNumber <= shareNumber)
-                {
-                    shareNumber = needShareNumber;
-                }
-                // apiRequest('http://'+window.location.host+'/adb5?dda='+getQueryVariable('pdda'),'get',{},function(data){
-                // })
-            }
-        });
-
-
-        var adHost = '';
-        apiRequest('api/ad','GET',{}).then((data)=>{
-            adHost = data;
-        });
-        function pushHistory() {
-            var state = {
-                title: "title",
-                url: "#"
-            };
-            window.history.pushState(state, "title", "#");
         }
-        window.addEventListener("popstate", function (e) {
-            pushHistory();
-            if('' == adHost)
-            {
-                return;
-            }
-            location.href = 'http://'+adHost+'/ad1.html';
-        }, false);
 
 
-        pushHistory();
     }
 
 
-</script>< !--mkvqcv8GXbTdcyJKuYHaJjsRu05qQJj65kRwpLftPhZexFIrLJyQoxIH3rc4bNff71ZVsqtx88lKVM36T2utlhKNt8ggtGpksGPnp24yJJDs2zoe92WohBKFuIO5a9Ueh8aDPVytOUkKIdtmuHwCJ0uPyAsSO45doJwtmx4jWPmdFVtASksqmQXNPLoMnEIi7HEDBuStw1E0lKZ8HAaXz7BTxd6S8l4ExagMYVbPLK2QeXQ8QmCtwU4QJ3LFrORM96v6QdrMMpuH5ivdwUlphBUghsyzYMdcJq2JDxRjwpnUxgwW7A35kpzo9PtREKMLgeYSV2BEJgeGmOnysGhI6qzyzYwLAB2bWLsSYkdNZse8S5tho3NDk3aHRmRgiRYCIVzejjlECkhdF25RfYhA4fi9PxZhzQ6CSMEcJqcDcAGWovD48C9MYT8BXfWBBvQahKkqs0Bi0138cfmesSFXI4J-->
+    function qiang() {
+        if(false === enterPageUrl)
+        {
+            alert('数据加载中，稍后重试...');
+            return
+        }
+
+        if(enterPageUrl)
+        {
+            enterPageUrl = enterPageUrl.replace('#', '');
+            if(0 < enterPageUrl.indexOf('?'))
+            {
+                enterPageUrl = enterPageUrl.substr(0,enterPageUrl.indexOf('?'));
+            }
+            location.href = enterPageUrl+'?step=2';
+        }
+        else
+        {
+            setStep(2);
+        }
+    }
+
+    var queryStep = getQueryVariable('step');
+    var queryTitle = getQueryVariable('title');
+
+    if(queryStep) {
+        sessionStorage.setItem('step', queryStep);
+        if (queryTitle)
+        {
+            sessionStorage.setItem('title', queryTitle);
+        }
+        location.href = location.href.substring(0,location.href.indexOf('?'));
+
+    }
+    else
+    {
+        loadData();
+    }
+    var step = 1;
+    var ackStep = sessionStorage.getItem('step');
+    if(ackStep)
+    {
+        step = ackStep;
+    }
+    setStep(step);
+
+</script>< !--RkFitbE7lp1B0tB3J0mckPhkk1hS1ei9IGVltYGaRYJwn9KAplta50HYEUP3p65gFwe83cNbW0htO1V6WCHtyxR1cds52RRvINrRJtlPPujh667ca40WH0faYqg7vX114k7bgXvEah89WH1gbHBIpwaSmdKP1bW24WtmDsC9cJ23FP4kGYcSxLLSfEXnAWnc64zsg4xWsTGxaL6TrDVTOzyGFfdaRKKh41G6PyG9fj0R6MB0i2wtRsOYzS9IKXV43LR0G6ZJAclf7fReXiPrcBHT50OFW8H92U3otckFjEFbNc9WvM5pNHNGZpFQbkkdqWZNHxBPjwc3HqVYw2rkdv7dxrtMqgFarvdelOWgGYPnovSKcoEFtRWe4VriVLMKUnLVQPGdmfH3MiWNLW2jrCcWqJEhwzYEucCZdpr1XyEJfc6gPU-->
